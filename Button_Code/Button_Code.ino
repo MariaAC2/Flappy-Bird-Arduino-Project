@@ -209,17 +209,19 @@ void checkCollision() {
     tft.print("Game Over!");
 
     tft.setTextSize(2);
-    tft.setCursor(75, 200);
-    tft.print("Score: ");
+    tft.setCursor(75, 180);
+    tft.print("Score:");
 
-    tft.setTextSize(2);
+    tft.setCursor(220, 125);
+    tft.setTextSize(3);
     tft.setTextColor(WHITE);
+    
     tft.print(score);
 
     if (score > highScore) {
       highScore = score;
       EEPROM.write(addr, highScore);
-      tft.setCursor(75, 150);
+      tft.setCursor(75, 175);
       tft.setTextSize(2);
       tft.setTextColor(YELLOW);
       tft.print("NEW HIGH!");
@@ -244,7 +246,7 @@ void drawLoop() { //Bird and Pillar Animations
 
     pillarPos -= 5;
     if (pillarPos == 0) {
-      score = score + 1;
+      score = score + 5;
     }
     else if (pillarPos < -50) {
       pillarPos = 200;
@@ -271,16 +273,6 @@ void drawLoop() { //Bird and Pillar Animations
   currentWing++;   //flap the wing
   if (currentWing == 6) 
     currentWing = 0;  //reset the wing
-
-  // Display high score
-  tft.setTextColor(RED);
-  tft.setTextSize(2);
-  tft.setCursor(30, 250);
-  tft.print("High Score : ");
-
-  tft.setTextColor(RED);
-  tft.setTextSize(2);
-  tft.print(highScore);
 }
 
 void drawPillar(int x, int gap) {
