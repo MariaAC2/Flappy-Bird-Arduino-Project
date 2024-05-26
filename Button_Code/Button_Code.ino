@@ -93,8 +93,7 @@ void setup() {
   width = tft.width();
   height = tft.height();
 
-  int initialValue = 0; // Set the initial value to 0
-  EEPROM.write(addr, initialValue);
+  highScore = EEPROM.get(addr, highScore);
 
   mainMenu();
 }
@@ -186,8 +185,6 @@ void startGame() {
   crashed = false;
   score = 0;
 
-  highScore = EEPROM.read(addr);
-
   if (!startBird) {
     tft.setCursor(75, 150);
     tft.setTextColor(WHITE);
@@ -198,8 +195,6 @@ void startGame() {
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
     tft.println("begin!!");
-  } else {
-    tft.fillRect(75, 150, 100, 40, BACKGROUND_COLOR);
   }
 
   delay(1000);
@@ -207,7 +202,6 @@ void startGame() {
 }
 
 void checkCollision() {
-
   // Collision with ground
   if (flY > 206) crashed = true;
 
@@ -217,29 +211,28 @@ void checkCollision() {
       crashed = true;
 
   if (crashed) {      //Check if bird crashes
+    if (score > highScore) {
+      highScore = score;
+      EEPROM.write(addr, highScore);
+      tft.setCursor(30, 40);
+      tft.setTextSize(3);
+      tft.setTextColor(YELLOW);
+      tft.print("NEW HIGH!");
+    }
     tft.setTextColor(RED);
     tft.setTextSize(2);
     tft.setCursor(60, 75);
     tft.print("Game Over!");
 
     tft.setTextSize(2);
-    tft.setCursor(70, 120);
-    tft.print("Score: ");
+    tft.setCursor(80, 140);
+    tft.print("Score:");
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
     tft.print(score);
 
-    if (score > highScore) {
-      highScore = score;
-      EEPROM.write(addr, highScore);
-      tft.setCursor(75, 100);
-      tft.setTextSize(2);
-      tft.setTextColor(YELLOW);
-      tft.print("NEW HIGH!");
-    }
-
-    tft.fillRoundRect(90, 180, 60, 30, 8, GREEN);
-    tft.drawRoundRect(90, 180, 60, 30, 8, WHITE);  // Start Buttion
+    tft.fillRoundRect(90, 180, 60, 35, 8, GREEN);
+    tft.drawRoundRect(90, 180, 60, 35, 8, WHITE);  // Start Buttion
 
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
@@ -251,7 +244,7 @@ void checkCollision() {
     // Display the high score on the screen
     tft.setTextColor(RED);
     tft.setTextSize(2);
-    tft.setCursor(80, 250);
+    tft.setCursor(40, 260);
     tft.print("High Score: ");
     tft.print(highScore);
 
