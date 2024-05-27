@@ -75,8 +75,9 @@ bool startBird = false;
 #define addr 0
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(9600); // LCD start
   tft.begin();
+  tft.setRotation(3); // 1 = 90 degrees clockwise
 
   uint8_t x = tft.readcommand8(ILI9341_RDMODE);
   Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
@@ -93,7 +94,19 @@ void setup() {
   width = tft.width();
   height = tft.height();
 
-  highScore = EEPROM.get(addr, highScore);
+  // Set highScore to 0
+  int initFlag;
+  EEPROM.get(addr, initFlag);
+
+  // If EEPROM is not initialized, initialize it
+  if (initFlag != 12345) {
+    int defaultHighScore = 0;
+    EEPROM.put(addr, 12345);
+    EEPROM.put(addr + sizeof(int), defaultHighScore);
+  }
+
+  // Read the high score from EEPROM
+  EEPROM.get(addr + sizeof(int), highScore);
 
   mainMenu();
 }
@@ -152,26 +165,25 @@ void mainMenu() {
 }
 
 void printBackground() {
-  tft.drawRect(0, 0, 240, 240, BACKGROUND_COLOR);
-  tft.fillRect(0, 0, 240, 240, BACKGROUND_COLOR);
+  // tft.drawRect(0, 0, 240, 240, BACKGROUND_COLOR);
+  // tft.fillRect(0, 0, 240, 240, BACKGROUND_COLOR);
 
-  tft.drawRect(0, 240, 240, 100, GREEN);
-  tft.fillRect(0, 240, 240, 100, GREEN);
+  tft.fillScreen(BACKGROUND_COLOR);
 }
 
 void initiateGame() {
-  tft.setCursor(60, 100);
+  tft.setCursor(95, 60);
   tft.setTextSize(2);
   tft.setFont();
   tft.setTextColor(WHITE);
   tft.print("FLAPPY BIRD"); // Flappy Bird Logo
 
-  tft.fillRoundRect(30, 180, 180, 40, 8, RED);
-  tft.drawRoundRect(30, 180, 180, 40, 8, WHITE);  // Start Buttion
+  tft.fillRoundRect(70, 150, 180, 40, 8, RED);
+  tft.drawRoundRect(70, 150, 180, 40, 8, WHITE);  // Start Buttion
 
   tft.setTextColor(WHITE);
   tft.setTextSize(3);
-  tft.setCursor(75, 190);
+  tft.setCursor(115, 160);
   tft.print("START"); // Start Text Button
 }
 
@@ -186,12 +198,12 @@ void startGame() {
   score = 0;
 
   if (!startBird) {
-    tft.setCursor(75, 150);
+    tft.setCursor(110, 100);
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
     tft.println("Tap to");
 
-    tft.setCursor(75, 170);
+    tft.setCursor(110, 120);
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
     tft.println("begin!!");
@@ -212,31 +224,36 @@ void checkCollision() {
 
   if (crashed) {      //Check if bird crashes
     if (score > highScore) {
+      Serial.print("Scor: ");
+      Serial.println(score);
+
+      Serial.print("High Score: ");
+      Serial.println(highScore);
       highScore = score;
       EEPROM.write(addr, highScore);
-      tft.setCursor(30, 40);
+      tft.setCursor(80, 40);
       tft.setTextSize(3);
-      tft.setTextColor(YELLOW);
+      tft.setTextColor(ORANGE);
       tft.print("NEW HIGH!");
     }
     tft.setTextColor(RED);
     tft.setTextSize(2);
-    tft.setCursor(60, 75);
+    tft.setCursor(100, 75);
     tft.print("Game Over!");
 
     tft.setTextSize(2);
-    tft.setCursor(80, 140);
+    tft.setCursor(115, 140);
     tft.print("Score:");
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
     tft.print(score);
 
-    tft.fillRoundRect(90, 180, 60, 35, 8, GREEN);
-    tft.drawRoundRect(90, 180, 60, 35, 8, WHITE);  // Start Buttion
+    tft.fillRoundRect(130, 180, 60, 35, 8, GREEN);
+    tft.drawRoundRect(130, 180, 60, 35, 8, WHITE);  // Start Buttion
 
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
-    tft.setCursor(110, 190);
+    tft.setCursor(150, 190);
     tft.print("OK"); // Start Text Button
 
     highScore = EEPROM.read(addr);
