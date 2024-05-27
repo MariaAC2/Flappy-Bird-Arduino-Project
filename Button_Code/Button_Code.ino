@@ -47,7 +47,8 @@
 #include "SPI.h"
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
-#include <EEPROM.h>
+#include "EEPROM.h"
+#include "SoftwareSerial.h"
 
 // For the Adafruit shield, these are the default.
 #define TFT_CLK 13
@@ -57,8 +58,11 @@
 #define TFT_CS 10
 #define TFT_RST 8
 #define BUTTON_PIN 2
+#define BLUETOOTH_RX 0
+#define BLUETOOTH_TX 1
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
+SoftwareSerial HC_05(BLUETOOTH_RX, BLUETOOTH_TX);
 
 int width = 0, height = 0;
 int current_page = 0, PILLAR_COLOR = DARKGREEN;
@@ -76,8 +80,10 @@ bool startBird = false;
 
 void setup() {
   Serial.begin(9600); // LCD start
+  HC_05.begin(9600); // Bluetooth start
+  
   tft.begin();
-  tft.setRotation(3); // 1 = 90 degrees clockwise
+  tft.setRotation(3); // 270 degrees rotation
 
   uint8_t x = tft.readcommand8(ILI9341_RDMODE);
   Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
@@ -224,11 +230,6 @@ void checkCollision() {
 
   if (crashed) {      //Check if bird crashes
     if (score > highScore) {
-      Serial.print("Scor: ");
-      Serial.println(score);
-
-      Serial.print("High Score: ");
-      Serial.println(highScore);
       highScore = score;
       EEPROM.write(addr, highScore);
       tft.setCursor(80, 40);
@@ -247,6 +248,7 @@ void checkCollision() {
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
     tft.print(score);
+    HC_05.println(score);
 
     tft.fillRoundRect(130, 180, 60, 35, 8, GREEN);
     tft.drawRoundRect(130, 180, 60, 35, 8, WHITE);  // Start Buttion
