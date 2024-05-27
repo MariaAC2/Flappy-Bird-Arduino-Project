@@ -58,11 +58,8 @@
 #define TFT_CS 10
 #define TFT_RST 8
 #define BUTTON_PIN 2
-#define BLUETOOTH_RX 0
-#define BLUETOOTH_TX 1
 
 Adafruit_ILI9341 tft = Adafruit_ILI9341(TFT_CS, TFT_DC, TFT_MOSI, TFT_CLK, TFT_RST, TFT_MISO);
-SoftwareSerial HC_05(BLUETOOTH_RX, BLUETOOTH_TX);
 
 int width = 0, height = 0;
 int current_page = 0, PILLAR_COLOR = DARKGREEN;
@@ -79,22 +76,21 @@ bool startBird = false;
 #define addr 0
 
 void setup() {
-  Serial.begin(9600); // LCD start
-  HC_05.begin(9600); // Bluetooth start
+  Serial.begin(38400); // Bluetooth start
   
   tft.begin();
   tft.setRotation(3); // 270 degrees rotation
 
-  uint8_t x = tft.readcommand8(ILI9341_RDMODE);
-  Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDMADCTL);
-  Serial.print("MADCTL Mode: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDPIXFMT);
-  Serial.print("Pixel Format: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDIMGFMT);
-  Serial.print("Image Format: 0x"); Serial.println(x, HEX);
-  x = tft.readcommand8(ILI9341_RDSELFDIAG);
-  Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); 
+  // uint8_t x = tft.readcommand8(ILI9341_RDMODE);
+  // Serial.print("Display Power Mode: 0x"); Serial.println(x, HEX);
+  // x = tft.readcommand8(ILI9341_RDMADCTL);
+  // Serial.print("MADCTL Mode: 0x"); Serial.println(x, HEX);
+  // x = tft.readcommand8(ILI9341_RDPIXFMT);
+  // Serial.print("Pixel Format: 0x"); Serial.println(x, HEX);
+  // x = tft.readcommand8(ILI9341_RDIMGFMT);
+  // Serial.print("Image Format: 0x"); Serial.println(x, HEX);
+  // x = tft.readcommand8(ILI9341_RDSELFDIAG);
+  // Serial.print("Self Diagnostic: 0x"); Serial.println(x, HEX); 
 
   DDRD &= ~(1 << BUTTON_PIN);
   width = tft.width();
@@ -118,7 +114,7 @@ void setup() {
 }
 
 void loop(void) {
-
+  
   if (current_page == 0) { // Main Menu
     if (PIND & (1 << BUTTON_PIN)) {
       delay(500);  // Add some delay to prevent flooding the serial output
@@ -171,9 +167,6 @@ void mainMenu() {
 }
 
 void printBackground() {
-  // tft.drawRect(0, 0, 240, 240, BACKGROUND_COLOR);
-  // tft.fillRect(0, 0, 240, 240, BACKGROUND_COLOR);
-
   tft.fillScreen(BACKGROUND_COLOR);
 }
 
@@ -203,17 +196,15 @@ void startGame() {
   crashed = false;
   score = 0;
 
-  if (!startBird) {
-    tft.setCursor(110, 100);
-    tft.setTextColor(WHITE);
-    tft.setTextSize(2);
-    tft.println("Tap to");
+  tft.setCursor(115, 100);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(2);
+  tft.println("Tap to");
 
-    tft.setCursor(110, 120);
-    tft.setTextColor(WHITE);
-    tft.setTextSize(2);
-    tft.println("begin!!");
-  }
+  tft.setCursor(110, 120);
+  tft.setTextColor(WHITE);
+  tft.setTextSize(2);
+  tft.println("begin!!");
 
   delay(1000);
   nextDrawLoopRunTime = millis() + DRAW_LOOP_INTERVAL;
@@ -248,14 +239,14 @@ void checkCollision() {
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
     tft.print(score);
-    HC_05.println(score);
+    Serial.write(score);
 
-    tft.fillRoundRect(130, 180, 60, 35, 8, GREEN);
-    tft.drawRoundRect(130, 180, 60, 35, 8, WHITE);  // Start Buttion
+    tft.fillRoundRect(125, 180, 60, 35, 8, GREEN);
+    tft.drawRoundRect(125, 180, 60, 35, 8, WHITE);  // Start Buttion
 
     tft.setTextColor(WHITE);
     tft.setTextSize(2);
-    tft.setCursor(150, 190);
+    tft.setCursor(145, 190);
     tft.print("OK"); // Start Text Button
 
     highScore = EEPROM.read(addr);
