@@ -48,7 +48,7 @@
 #include "Adafruit_GFX.h"
 #include "Adafruit_ILI9341.h"
 #include "EEPROM.h"
-#include "SoftwareSerial.h"
+#include <SoftwareSerial.h>
 
 // For the Adafruit shield, these are the default.
 #define TFT_CLK 13
@@ -114,7 +114,6 @@ void setup() {
 }
 
 void loop(void) {
-  
   if (current_page == 0) { // Main Menu
     if (PIND & (1 << BUTTON_PIN)) {
       delay(500);  // Add some delay to prevent flooding the serial output
@@ -153,7 +152,6 @@ void loop(void) {
       }
       else
       {
-        startBird = true;
         // Go up
         fallRate = -8;
       }
@@ -239,7 +237,10 @@ void checkCollision() {
     tft.setTextSize(2);
     tft.setTextColor(WHITE);
     tft.print(score);
-    Serial.write(score);
+
+    if (Serial.available() > 0) {
+      Serial.print(score);
+    }
 
     tft.fillRoundRect(125, 180, 60, 35, 8, GREEN);
     tft.drawRoundRect(125, 180, 60, 35, 8, WHITE);  // Start Buttion
