@@ -6,4 +6,4 @@ This university project uses an Arduino microcontroller, an LCD display, a butto
 ---
 
 ## Resources
-Project Documentation: [pm/prj2024/ccontasel/maria.chirnogeanu]([https://pages.github.com/](https://ocw.cs.pub.ro/courses/pm/prj2024/ccontasel/maria.chirnogeanu))
+Project Documentation [here](https://ocw.cs.pub.ro/courses/pm/prj2024/ccontasel/maria.chirnogeanu)
